@@ -103,13 +103,13 @@ window.onload = function() {
     function findClosest(bub, angle){
         var gridIndex = [];
         if(angle <= 90){
-            gridIndex[0] = Math.ceil(bub.position[0]/tileWidth);
+            gridIndex[0] = Math.ceil(bub.x/tileWidth);
         }
         else{
-            gridIndex[0] = Math.floor(bub.position[0]/tileWidth);
+            gridIndex[0] = Math.floor(bub.x/tileWidth);
         }
        
-        gridIndex[1] = Math.floor(bub.position[1]/tileHeight);
+        gridIndex[1] = Math.floor(bub.y/tileHeight);
 
         return(gridIndex);
     }
