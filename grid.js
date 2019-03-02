@@ -6,6 +6,8 @@ window.onload = function() {
 
     // global vars
     var grid = 0;
+    var tileWidth = 0;
+    var tileHeight = 0;
 
     class Point {
         constructor(x, y) {
@@ -20,8 +22,8 @@ window.onload = function() {
         constructor(canvas, numCols, numRows) {
             // init grid with #rows = numRows
             grid = Create2DArray(numRows);
-            var tileWidth = canvas.width/(numCols+1);
-            var tileHeight = canvas.height/(numRows+1);
+            tileWidth = canvas.width/(numCols+1);
+            tileHeight = canvas.height/(numRows+1);
             for (var i = 1; i<=numRows; i++) {
                 for (var j = 1; j<=numCols; j++) {
 
@@ -65,6 +67,20 @@ window.onload = function() {
 
     function init() {
         window.requestAnimationFrame(draw);
+    }
+
+    function findClosest(bub, angle){
+        var gridIndex = [];
+        if(angle <= 90){
+            gridIndex[0] = Math.ceil(bub.position[0]/tileWidth);
+        }
+        else{
+            gridIndex[0] = Math.floor(bub.position[0]/tileWidth);
+        }
+       
+        gridIndex[1] = Math.floor(bub.position[1]/tileHeight);
+
+        return(gridIndex);
     }
 
     init();
