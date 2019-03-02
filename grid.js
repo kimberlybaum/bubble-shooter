@@ -5,12 +5,28 @@ window.onload = function() {
     var ctx = canvas.getContext("2d");
 
     // global vars
-    var grid = Create2DArray();
+    var grid = 0;
+
+    class Point {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.settable = true;
+            this.isPoint = false;
+        }
+    }
 
     class Grid {
-        constructor(x, y) {
-            this.color = c;
-            this.position = [x, y];
+        constructor(canvas, numCols, numRows) {
+            // init grid with #rows = numRows
+            grid = Create2DArray(numRows);
+            var tileWidth = canvas.width/(numCols+1);
+            var tileHeight = canvas.height/(numRows+1);
+            for (var i = 1; i<=numRows; i++) {
+                for (var j = 1; j<=numCols; j++) {
+
+                }
+            }
         }
     }
 
