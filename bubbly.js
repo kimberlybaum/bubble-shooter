@@ -98,6 +98,34 @@ window.onload = function() {
         }
     }
 
+    function renderGrid() {
+                    // draw grid
+        for (var i = 0; i<grid.length; i++) {
+            for (var j = 0; j<grid[0].length; j++) {
+                bub = grid[i][j];
+
+                if(bub == null) //for empty spots
+                    return;
+
+                ctx.beginPath();
+                ctx.fillStyle = bub.color;
+
+                //update bubble's x and y positions to include offsets and such
+                if(i%2 == 0){
+                    bub.position[0] = bubbleRadius*(j+1)+xOffset*(j+1) + bubbleRadius;
+                    bub.position[1] = bubbleRadius*(i+1)+yOffset*(i+1);
+                }
+                else{
+                    bub.position[0] = bubbleRadius*(j+1)+xOffset*(1+j);
+                    bub.position[1] = bubbleRadius*(i+1)+yOffset*(i+1);
+                }
+
+                ctx.arc(bub.position[0], bub.position[1], bubbleRadius, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+    }
+
     function draw() {
         // loop
         if (ctx) {
@@ -106,33 +134,7 @@ window.onload = function() {
 
             // draw moving bub
             renderBubble(bubbleToShoot);
-
-            // draw grid
-            console.log(grid);
-            for (var i = 0; i<grid.length; i++) {
-                for (var j = 0; j<grid[0].length; j++) {
-                    bub = grid[i][j];
-
-                    if(bub == null) //for empty spots
-                        return;
-
-                    ctx.beginPath();
-                    ctx.fillStyle = bub.color;
-
-                    //update bubble's x and y positions to include offsets and such
-                    if(i%2 == 0){
-                        bub.position[0] = bubbleRadius*(j+1)+xOffset*(j+1) + bubbleRadius;
-                        bub.position[1] = bubbleRadius*(i+1)+yOffset*(i+1);
-                    }
-                    else{
-                        bub.position[0] = bubbleRadius*(j+1)+xOffset*(1+j);
-                        bub.position[1] = bubbleRadius*(i+1)+yOffset*(i+1);
-                    }
-
-                    ctx.arc(bub.position[0], bub.position[1], bubbleRadius, 0, Math.PI*2);
-                    ctx.fill();
-              }
-            }
+            renderGrid();
         }
         window.requestAnimationFrame(draw);
     }
