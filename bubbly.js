@@ -31,94 +31,6 @@ window.onload = function() {
         }
     }
 
-    function newBubble() {
-        bubbleToShoot =  new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandomInt(bubbleColors.length)])
-    }
-
-    function shootBubble() {
-        // on click call second shoot function
-        // while empty space
-        // while(bubbleToShoot.position[1] > 0){
-        //   window.requestAnimationFrame(moveBubble);
-        // }
-        //window.requestAnimationFrame(moveBubble);
-
-        moveBubble();
-        setTimeout(20)
-        //snap bubble in
-      //  var closestSpotX = 3;
-      //  var newRow = true;
-
-        sleep(1000).then(() => {
-            // Do something after the sleep!
-        // if(newRow == true){
-        //     var addRow = [];
-        //     //figure out placement of bubble in grid base on nearest coordinates
-        //     var curCol = 0;
-        //     while(curCol < columns){
-        //         addRow[curCol] = (curCol == closestSpotX) ? movingBub : null;
-        //         curCol ++;
-        //     }
-        //     grid.push(addRow);
-        // }
-        var copyBubble = new Bubble(movingBub.position[0],movingBub.position[1], movingBub.color);
-        lockInBubble(copyBubble);
-        movingBub = 0;
-     });
-    }
-
-    function sleep (time) {
-        return new Promise((resolve) => setTimeout(resolve, time));
-      }
-
-    function lockInBubble(b) {
-
-        var newRow = true;
-        var closestSpotX = Math.ceil(b.position[0]*columns/canvas.width)
-       // var closestSpotY = Math.ceil(bubbleToShoot.position[1]*rows/canvas.width)
-        for(var cr = grid.length-1; cr >= 0; cr--){
-            for(var bubSpot = 0; bubSpot < columns; bubSpot++){
-                if (bubSpot == closestSpotX && grid[cr][bubSpot] == null){
-                    grid[cr][bubSpot] = b;
-                    newRow = false;
-                    return;
-                }
-            }
-            break;
-        }
-       // console.log(closestSpotX);
-        if(newRow == true){
-            var addRow = [];
-            //figure out placement of bubble in grid base on nearest coordinates
-            var curCol = 0;
-            while(curCol < columns){
-                addRow[curCol] = (curCol == closestSpotX) ? movingBub : null;
-                curCol ++;
-            }
-            grid.push(addRow);
-        }
-    }
-
-    function moveBubble() { 
-        if(movingBub.position[1] < 0//dont go off top screen
-            || movingBub.position[1] < (((rows+1)*bubbleRadius+(rows+1)*yOffset))){ //dont pass first row of bubbles...for now
-                 //   console.log(-1*Math.sin(degToRad(shootAngle)));
-            return;
-        }
-        //for reflect off sides
-        // else if(movingBub.position[0] > canvas.width 
-        // || movingBub.position[0] < 0 ) {
-
-        // }
-
-        movingBub.position[0] +=  speed * Math.cos(degToRad(shootAngle));
-        movingBub.position[1] +=  speed * -1*Math.sin(degToRad(shootAngle));
-
-        window.requestAnimationFrame(moveBubble);
-     //  window.requestAnimationFrame(moveBubble);
-       window.cancelAnimationFrame(moveBubble);
-    }
-
     // Get the mouse position
     function getMousePos(canvas, e) {
         var rect = canvas.getBoundingClientRect();
@@ -162,9 +74,6 @@ window.onload = function() {
     function onMouseDown(e) {
         //capture press down angle
         shootAngle = cursor;
-        movingBub = bubbleToShoot;
-        bubbleToShoot = new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandomInt(bubbleColors.length)]);
-        shootBubble();
         console.log(grid);
         movingBub = 0;
         //movingBub = 0; ??
@@ -180,25 +89,23 @@ window.onload = function() {
         }
     }
 
+    function renderBubble(bubble) {
+        if (bubble) {
+            ctx.beginPath();
+            ctx.fillStyle = bubble.color;
+            ctx.arc(bubble.position[0], bubble.position[1], bubbleRadius, 0, Math.PI*2);
+            ctx.fill();
+        }
+    }
+
     function draw() {
         // loop
         if (ctx) {
-            // clear ev erything
+            // clear everything
             ctx.clearRect(0,0,canvas.width,canvas.height);
 
             // draw moving bub
-
-            ctx.beginPath();
-            ctx.fillStyle = bubbleToShoot.color;
-            ctx.arc(bubbleToShoot.position[0], bubbleToShoot.position[1], bubbleRadius, 0, Math.PI*2);
-            ctx.fill();
-
-            if(movingBub != 0){
-                ctx.beginPath();
-                ctx.fillStyle = movingBub.color;
-                ctx.arc(movingBub.position[0], movingBub.position[1], bubbleRadius, 0, Math.PI*2);
-                ctx.fill();
-            }
+            renderBubble(bubbleToShoot);
 
             // draw grid
             console.log(grid);
@@ -234,8 +141,6 @@ window.onload = function() {
 
         canvas.addEventListener("mousemove", onMouseMove);
         canvas.addEventListener("mousedown", onMouseDown);
-
-        newBubble();
         populate(rows, columns);
         window.requestAnimationFrame(draw);
 
