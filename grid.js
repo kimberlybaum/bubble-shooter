@@ -10,23 +10,42 @@ window.onload = function() {
     var tileHeight = 0;
 
     class Point {
-        constructor(x, y) {
+        constructor(x, y, settable) {
             this.x = x;
             this.y = y;
-            this.settable = true;
-            this.isPoint = false;
+            this.isSettable = settable;
+            this.isEmpty = true;
         }
     }
 
     class Grid {
         constructor(canvas, numCols, numRows) {
             // init grid with #rows = numRows
-            grid = Create2DArray(numRows);
+            grid = Create2DArray(numRows+1);
             tileWidth = canvas.width/(numCols+1);
             tileHeight = canvas.height/(numRows+1);
             for (var i = 1; i<=numRows; i++) {
                 for (var j = 1; j<=numCols; j++) {
+                    // logic to see if point is settable or not based on crosshatch pattern
+                    var set;
+                    if (i%2==1) {
+                        if (j%2==0) {
+                            set = false;
+                        } else {
+                            set = true;
+                        }
+                    } else {
+                        if (j%2==0) {
+                            set = true;
+                        } else {
+                            set = false;
+                        }
+                    }
 
+                    // add point to grid
+                    var p = new Point(tileWidth*i,tileHeight*j,set);
+                    console.log(grid);
+                    grid[i][j] = p;
                 }
             }
         }
@@ -42,12 +61,19 @@ window.onload = function() {
         return arr;
     }
 
-    function populate(r, c) {
-        for (var i = 0; i<r; i++) {
-            for (var j = 0; j<c; j++) {
-                var rand = getRandomInt(bubbleColors.length)
-                var bub = new Bubble(i,j,bubbleColors[rand]);
-                grid[i][j] = bub;
+    function renderGrid() {
+        // draw grid
+        for (var i = 1; i<grid.length; i++) {
+            for (var j = 1; j<grid[1].length; j++) {
+                var p = grid[i][j];
+                console.log(p);
+                if (p.isSettable) {
+                    ctx.beginPath();
+                    ctx.fillStyle = "black";
+                    ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
+                    ctx.fill();
+                    console.log("got here");
+                }
             }
         }
     }
@@ -58,14 +84,16 @@ window.onload = function() {
             // clear everything
             ctx.clearRect(0,0,canvas.width,canvas.height);
 
-            // draw moving bub
-            renderBubble(bubbleToShoot);
+            // draw grid
             renderGrid();
         }
+
+        // redraw
         window.requestAnimationFrame(draw);
     }
 
     function init() {
+        new Grid(canvas,30,30);
         window.requestAnimationFrame(draw);
     }
 
