@@ -9,6 +9,9 @@ window.onload = function() {
     var tileWidth = 0;
     var tileHeight = 0;
 
+    // space to draw the shooter at the bottom
+    let shooterGap = 50;
+
     class Point {
         constructor(x, y, settable) {
             this.x = x;
@@ -23,7 +26,7 @@ window.onload = function() {
             // init grid with #rows = numRows
             grid = Create2DArray(numRows+1);
             tileWidth = canvas.width/(numCols+1);
-            tileHeight = canvas.height/(numRows+1);
+            tileHeight = (canvas.height-shooterGap)/(numRows+1);
             for (var i = 1; i<=numRows; i++) {
                 for (var j = 1; j<=numCols; j++) {
                     // logic to see if point is settable or not based on crosshatch pattern
@@ -44,7 +47,7 @@ window.onload = function() {
 
                     // add point to grid
                     var p = new Point(tileWidth*i,tileHeight*j,set);
-                    console.log(grid);
+                    // console.log(grid);
                     grid[i][j] = p;
                 }
             }
@@ -66,13 +69,13 @@ window.onload = function() {
         for (var i = 1; i<grid.length; i++) {
             for (var j = 1; j<grid[1].length; j++) {
                 var p = grid[i][j];
-                console.log(p);
+                // console.log(p);
                 if (p.isSettable) {
                     ctx.beginPath();
                     ctx.fillStyle = "black";
                     ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
                     ctx.fill();
-                    console.log("got here");
+                    // console.log("got here");
                 }
             }
         }
