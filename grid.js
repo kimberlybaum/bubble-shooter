@@ -230,16 +230,16 @@ window.onload = function() {
 
                 // draw shit
                 renderGrid();
-
-                //get position of mouse while its moving
-                canvas.addEventListener("mousemove", onMouseMove);
-
-                //change state on mousedown
-                canvas.addEventListener("mousedown", onMouseDown);
             }
+            
+            //get position of mouse while its moving
+            canvas.addEventListener("mousemove", onMouseMove);
+            //change state on mousedown
+            canvas.addEventListener("mousedown", onMouseDown);
         }
-        else if (currentState==movingState) {
 
+        else if (currentState==movingState) {
+            
         }
         else if (currentState==collapseState) {
 
