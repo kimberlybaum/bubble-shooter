@@ -57,13 +57,19 @@ window.onload = function() {
     }
 
     class Grid {
-        constructor(canvas, numCols, numRows, numBubRows) {
+        constructor(canvas, numBubRows) {
             // init grid with #rows = numRows
-            grid = Create2DArray(numRows+1);
-            tileWidth = canvas.width/(numCols+1);
-            tileHeight = (canvas.height-shooterGap)/(numRows+1);
-            for (var i = 1; i<=numRows; i++) {
-                for (var j = 1; j<=numCols; j++) {
+
+            //user define num cols and num rows are arbitrary, it should depend on the bubble radius
+            tileWidth = bubbleRadius + bubbleRadius/8;
+            tileHeight = bubbleRadius * 2;
+            var numRows = canvas.width/tileWidth - 1;
+            var numCols = canvas.height/tileHeight - 2;
+
+            grid = Create2DArray(numRows);
+
+            for (var i = 1; i<numRows; i++) {
+                for (var j = 1; j<numCols; j++) {
                     // logic to see if point is settable or not based on crosshatch pattern
                     var set;
                     var b;
@@ -88,7 +94,6 @@ window.onload = function() {
                             
                         }
                     }
-                    
 
                     // add point to grid
                     var p = new Point(tileWidth*i,tileHeight*j,set, b);
@@ -218,7 +223,7 @@ window.onload = function() {
 
     function init() {
         // populate matrix
-        new Grid(canvas,17,17,8);
+        new Grid(canvas,8);
 
         // init state
         currentState = restState;
