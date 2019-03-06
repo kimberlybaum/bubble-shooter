@@ -11,7 +11,7 @@ window.onload = function() {
     var startingTotal = 100;
 
     //static bubble properties
-    let bubbleRadius = 15;
+    let bubbleRadius = 21;
     let bubbleColors = ["pink","blue", "purple", "hotpink"];
 
     // shooter variables
@@ -24,6 +24,12 @@ window.onload = function() {
     let restState = 0;
     let movingState = 1;
     let collapseState = 2;
+
+    // position/angle of cursor
+    var cursor = 0;
+
+    //
+    var shootAngle = 0;
 
     // space to draw the shooter at the bottom
     let shooterGap = 50;
@@ -50,7 +56,7 @@ window.onload = function() {
     }
 
     class Grid {
-        constructor(canvas, numCols, numRows) {
+        constructor(canvas, numCols, numRows, numBubRows) {
             // init grid with #rows = numRows
             grid = Create2DArray(numRows+1);
             tileWidth = canvas.width/(numCols+1);
@@ -67,12 +73,14 @@ window.onload = function() {
                         } else {
                             set = true;
                             // create a bubble with random color
-                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
+                            if(j <= numBubRows)
+                                b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
                         }
                     } else {
                         if (j%2==0) {
                             set = true;
-                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
+                            if(j <= numBubRows)
+                                b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
                         } else {
                             set = false;
                             b = null;
@@ -142,19 +150,48 @@ window.onload = function() {
         }
     }
 
-    function draw() {
-        // draw
-        if (ctx) {
-            // clear everything
-            ctx.clearRect(0,0,canvas.width,canvas.height);
+    //get position of mouse when its moving
 
-            // draw grid
-            renderGrid();
+    function onMouseMove(e) {
+        // Get the mouse position
+        var pos = getMousePos(canvas, e);
+
+        // Get the mouse angle
+        var mouseangle = radToDeg(Math.atan2(shooterPos[1] - pos.y, pos.x - shooterPos[0]));
+
+        // Convert range to 0, 360 degrees
+        if (mouseangle < 0) {
+            mouseangle = 180 + (180 + mouseangle);
         }
 
-        // redraw
-        window.requestAnimationFrame(draw);
+        // Restrict angle to 8, 172 degrees
+        var lbound = 8;
+        var ubound = 172;
+        if (mouseangle > 90 && mouseangle < 270) {
+            // Left
+            if (mouseangle > ubound) {
+                mouseangle = ubound;
+            }
+        } else {
+            // Right
+            if (mouseangle < lbound || mouseangle >= 270) {
+                mouseangle = lbound;
+            }
+        }
+
+        // Set the player angle
+        cursor = mouseangle;
     }
+
+    // change state and grab current position of mouse
+    function onMouseDown(e) {
+        //capture press down angle
+        shootAngle = cursor;
+
+        //change game state h00plah
+        currentState = movingState;
+    }
+
 
     // pick random bubble color (returns an index)
     function getRandColor() {
@@ -163,7 +200,7 @@ window.onload = function() {
 
     function init() {
         // populate matrix
-        new Grid(canvas,25,25);
+        new Grid(canvas,17,17,8);
 
         // init state
         currentState = restState;
@@ -193,6 +230,12 @@ window.onload = function() {
 
                 // draw shit
                 renderGrid();
+
+                //get position of mouse while its moving
+                canvas.addEventListener("mousemove", onMouseMove);
+
+                //change state on mousedown
+                canvas.addEventListener("mousedown", onMouseDown);
             }
         }
         else if (currentState==movingState) {
