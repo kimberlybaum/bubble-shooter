@@ -32,8 +32,8 @@ window.onload = function() {
     // angle to shoot bubble at
     var shootAngle = 0;
 
-    // space to draw the shooter at the bottom
-    let shooterGap = 50;
+    //gives you an array of all settable points at a given time
+    var settablePoints = [];
 
     //choose how many rows we want bubbles to be;
     let bubbleRows = 5;
@@ -59,7 +59,6 @@ window.onload = function() {
     class Grid {
         constructor(canvas, numBubRows) {
             // init grid with #rows = numRows
-            var count = 0;
             //user define num cols and num rows are arbitrary, it should depend on the bubble radius
             tileWidth = bubbleRadius + bubbleRadius/8;
             tileHeight = bubbleRadius * 2;
@@ -99,13 +98,10 @@ window.onload = function() {
                     var p = new Point(tileWidth*j+5,tileHeight*i,set, b);
                     if(b != null){
                         p.isEmpty = false;
-                        count++;
                     }
-                    // console.log(grid);
                     grid[i][j] = p;
                 }
             }
-            console.log(count);
         }
     }
 
@@ -245,9 +241,8 @@ window.onload = function() {
             if (!bubbleToShoot) {
                 bubbleToShoot = bubbleQueue.shift();
             }
-
               
-            //render settable points
+            //find and render settable points
             findSettable();
             
             //get position of mouse while its moving
@@ -263,6 +258,8 @@ window.onload = function() {
             // Move the bubble in the direction of the mouse
             bubbleToShoot.x += speed * Math.cos(degToRad(shootAngle));
             bubbleToShoot.y += speed * -1*Math.sin(degToRad(shootAngle));
+            
+            collisionDetection();
 
             // bouncing logic
             if (bubbleToShoot.x+bubbleRadius>=canvas.width) {
@@ -309,6 +306,35 @@ window.onload = function() {
         window.requestAnimationFrame(gameState);
     }
 
+    function collisionDetection() {
+        //if distance between point center and ball center is <= radius*2, return index for snap
+        var collisionDistance = (bubbleRadius*2)**2;
+        if(settablePoints) {
+        settablePoints.forEach(p => {
+            var currentDistance = (grid[p[0]][p[1]].x - bubbleToShoot.x)**2 + (grid[p[0]][p[1]].y-bubbleToShoot.y)**2;
+            if(currentDistance <= collisionDistance){
+                var snapIndex= [p[0], p[1]];
+                snapBubble(snapIndex);
+            }
+        });
+        }
+        else{
+            return;
+        }
+
+    }
+
+    function snapBubble(index) {
+        var bubbleCopy = new Bubble(bubbleToShoot.x, bubbleToShoot.y, bubbleToShoot.color);
+        var snapPosition =  grid[index[0]][index[1]];
+        var bubbleCopy = new Bubble(snapPosition.x, snapPosition.y, bubbleToShoot.color);
+        bubbleToShoot = 0;
+        snapPosition.bubble = bubbleCopy;
+        snapPosition.isSettable = false;
+        snapPosition.isEmpty = false;
+        currentState = collapseState;
+    }
+
     //makes only the points to the bottom left and right of a bubble settable for the moving bub
     function findSettable(){
         //grid indexes
@@ -336,14 +362,20 @@ window.onload = function() {
                         grid[row+1][col-1].isSettable = false;
                     grid[row+1][col+1].isSettable = false;
                 }
-                   col++
-                }
-                row++
+                col++
+            }
+            row++
         }
-        console.log(grid)
+        //this is redundant, will put this into findSettable() in the future
+        for(var r=1; r<grid.length; r++){
+            for(var c=1; c<grid[r].length; c++){
+                if(grid[r][c].isSettable){
+                    var arrayIndex = [r,c];
+                    settablePoints.push(arrayIndex);
+                }
+            }
+     }
     }
                        
-
-    //for choosing random bubble colors
     init();
 }
