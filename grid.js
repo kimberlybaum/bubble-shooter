@@ -59,12 +59,12 @@ window.onload = function() {
     class Grid {
         constructor(canvas, numBubRows) {
             // init grid with #rows = numRows
-
+            var count = 0;
             //user define num cols and num rows are arbitrary, it should depend on the bubble radius
             tileWidth = bubbleRadius + bubbleRadius/8;
             tileHeight = bubbleRadius * 2;
-            var numRows = canvas.width/tileWidth - 1;
-            var numCols = canvas.height/tileHeight - 2;
+            var numCols = canvas.width/tileWidth - 1;
+            var numRows = canvas.height/tileHeight - 2;
 
             grid = Create2DArray(numRows);
 
@@ -80,14 +80,14 @@ window.onload = function() {
                         } else {
                             set = true;
                             // create a bubble with random color
-                            if(j <= numBubRows)
-                                b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
+                            if(i <= numBubRows)
+                                b = new Bubble(tileWidth*j+5,tileHeight*i, bubbleColors[getRandColor()]);//+5 for a little offset
                         }
                     } else {
                         if (j%2==0) {
                             set = true;
-                            if(j <= numBubRows)
-                                b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
+                            if(i <= numBubRows)
+                                b = new Bubble(tileWidth*j+5,tileHeight*i, bubbleColors[getRandColor()]);
                         } else {
                             set = false;
                             b = null;
@@ -96,14 +96,16 @@ window.onload = function() {
                     }
 
                     // add point to grid
-                    var p = new Point(tileWidth*i,tileHeight*j,set, b);
+                    var p = new Point(tileWidth*j+5,tileHeight*i,set, b);
                     if(b != null){
                         p.isEmpty = false;
+                        count++;
                     }
                     // console.log(grid);
                     grid[i][j] = p;
                 }
             }
+            console.log(count);
         }
     }
 
@@ -121,18 +123,19 @@ window.onload = function() {
         // draw grid
         for (var i = 1; i<grid.length; i++) {
             for (var j = 1; j<grid[1].length; j++) {
-                var p = grid[i][j];
-                // console.log(p);
-                if (p.isSettable) {
+                    var p = grid[i][j];
+                    // console.log(p);
                     ctx.beginPath();
-                    ctx.fillStyle = "black";
+                    if (p.isSettable)
+                        ctx.fillStyle = "black";
+                    else
+                        ctx.fillStyle = "white";
                     ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
                     ctx.fill();
-                    // console.log("got here");
+                        // console.log("got here");
                     if(p.bubble != null){
                         drawBubble(p.bubble);
                     }
-                }
             }
         }
     }
@@ -242,6 +245,10 @@ window.onload = function() {
             if (!bubbleToShoot) {
                 bubbleToShoot = bubbleQueue.shift();
             }
+
+              
+            //render settable points
+            findSettable();
             
             //get position of mouse while its moving
             canvas.addEventListener("mousemove", onMouseMove);
@@ -295,25 +302,42 @@ window.onload = function() {
 
             // draw shit
             renderGrid();
+            
         }
 
         // redraw
         window.requestAnimationFrame(gameState);
     }
 
-    function findClosest(bub, angle){
-        var gridIndex = [];
-        if(angle <= 90) {
-            gridIndex[0] = Math.ceil(bub.x/tileWidth);
-        }
-        else {
-            gridIndex[0] = Math.floor(bub.x/tileWidth);
-        }
+    //makes only the points to the bottom left and right of a bubble settable for the moving bub
+    function findSettable(){
+        //grid indexes
+        var row = 1;
+        var col = 1;
 
-        gridIndex[1] = Math.floor(bub.y/tileHeight);
-
-        return(gridIndex);
+        while(row < grid.length-1){ //one less row and col cause were checking whats below and to the right and left
+            col = 1;
+            while(col < grid[1].length-1){
+                //check if current point has a bubble
+                if (!grid[row][col].isEmpty) {
+                    //exclude first column because all those points are null
+                    if(col!= 1) //here we are finding the points on the grid bubbles can get snapped into...
+                                //now time to do some math
+                        grid[row+1][col-1].isSettable = (grid[row+1][col-1].isEmpty)? true : false;
+                    grid[row+1][col+1].isSettable = (grid[row+1][col+1].isEmpty)? true : false;
+                }
+                else {
+                    if(col!= 1) 
+                        grid[row+1][col-1].isSettable = false;
+                    grid[row+1][col+1].isSettable = false;
+                }
+                   col++
+                }
+                row++
+        }
+        console.log(grid)
     }
+                       
 
     //for choosing random bubble colors
     init();
