@@ -9,7 +9,7 @@ window.onload = function() {
     var tileWidth = 0;
     var tileHeight = 0;
     var startingTotal = 100;
-    let speed = 5;
+    let speed = 6;
 
     //static bubble properties
     let bubbleRadius = 21;
@@ -244,6 +244,10 @@ window.onload = function() {
             canvas.addEventListener("mousedown", onMouseDown);
         }
         else if (currentState==movingState) {
+            // disable click
+            canvas.removeEventListener("mousemove", onMouseMove);
+            canvas.removeEventListener("mousedown", onMouseDown);
+            
             // Move the bubble in the direction of the mouse
             bubbleToShoot.x += speed * Math.cos(degToRad(shootAngle));
             bubbleToShoot.y += speed * -1*Math.sin(degToRad(shootAngle));
