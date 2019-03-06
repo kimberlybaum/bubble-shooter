@@ -10,12 +10,23 @@ window.onload = function() {
     var tileHeight = 0;
     var startingTotal = 100;
 
-    // space to draw the shooter at the bottom
-    let shooterGap = 50;
-
     //static bubble properties
     let bubbleRadius = 15;
     let bubbleColors = ["pink","blue", "purple", "hotpink"];
+
+    // shooter variables
+    var bubbleToShoot;
+    var bubbleQueue = new Array(2);
+    let shooterPos = [canvas.width/2, canvas.height-bubbleRadius*1.5];
+
+    // states
+    var currentState;
+    let restState = 0;
+    let movingState = 1;
+    let collapseState = 2;
+
+    // space to draw the shooter at the bottom
+    let shooterGap = 50;
 
     //choose how many rows we want bubbles to be;
     let bubbleRows = 5;
@@ -56,12 +67,12 @@ window.onload = function() {
                         } else {
                             set = true;
                             // create a bubble with random color
-                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[0]);
+                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
                         }
                     } else {
                         if (j%2==0) {
                             set = true;
-                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[0]);
+                            b = new Bubble(tileWidth*i,tileHeight*j, bubbleColors[getRandColor()]);
                         } else {
                             set = false;
                             b = null;
@@ -112,6 +123,15 @@ window.onload = function() {
         }
     }
 
+    function renderShootBubble() {
+        if (bubbleToShoot) {
+            ctx.beginPath();
+            ctx.fillStyle = bubbleToShoot.color;
+            ctx.arc(bubbleToShoot.x, bubbleToShoot.y, bubbleRadius, 0, Math.PI*2);
+            ctx.fill();
+        }
+    }
+
     //draw the bubble
     function drawBubble(bubble) {
         if (bubble) {
@@ -123,7 +143,7 @@ window.onload = function() {
     }
 
     function draw() {
-        // loop
+        // draw
         if (ctx) {
             // clear everything
             ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -136,25 +156,73 @@ window.onload = function() {
         window.requestAnimationFrame(draw);
     }
 
+    // pick random bubble color (returns an index)
+    function getRandColor() {
+        return Math.floor(Math.random() * Math.floor(bubbleColors.length));
+    }
+
     function init() {
+        // populate matrix
         new Grid(canvas,25,25);
-        window.requestAnimationFrame(draw);
+
+        // init state
+        currentState = restState;
+
+        // init populate shooter queue
+        bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+        bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+
+        // start fsm
+        window.requestAnimationFrame(gameState);
+    }
+
+    function gameState() {
+        if (currentState==restState) {
+            // move head of bubbleShootQueue into bubbleToShoot if there is none
+            if (!bubbleToShoot) {
+                bubbleToShoot = bubbleQueue.shift();
+            }
+
+            // draw
+            if (ctx) {
+                // clear everything
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+
+                // render bubble to shoot if there is one
+                renderShootBubble();
+
+                // draw shit
+                renderGrid();
+            }
+        }
+        else if (currentState==movingState) {
+
+        }
+        else if (currentState==collapseState) {
+
+        }
+        else {
+            currentState = restState;
+        }
+
+        // redraw
+        window.requestAnimationFrame(gameState);
     }
 
     function findClosest(bub, angle){
         var gridIndex = [];
-        if(angle <= 90){
+        if(angle <= 90) {
             gridIndex[0] = Math.ceil(bub.x/tileWidth);
         }
-        else{
+        else {
             gridIndex[0] = Math.floor(bub.x/tileWidth);
         }
-       
+
         gridIndex[1] = Math.floor(bub.y/tileHeight);
 
         return(gridIndex);
     }
 
-    init();
     //for choosing random bubble colors
+    init();
 }
