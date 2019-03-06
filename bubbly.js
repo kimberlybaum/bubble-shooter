@@ -18,8 +18,14 @@ window.onload = function() {
 
     //next bubble to shoot
     var bubbleToShoot = 0;
+
     //current bubble being shot
     var movingBub = 0;
+
+    //queue holding a bubble to be shot (visible on screen) and another bubble waiting
+    //upon shooting the bubble on screen, a function will be triggered which moves the next bubble up in the queue
+    //and  replaces the bubble taken out of it
+    
 
     // global vars
     var grid = Create2DArray(rows);
@@ -30,6 +36,10 @@ window.onload = function() {
             this.position = [x, y];
         }
     }
+
+    //TO DO Shooter
+
+    function shooter ()
 
     // Get the mouse position
     function getMousePos(canvas, e) {
