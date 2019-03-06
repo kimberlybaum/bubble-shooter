@@ -264,7 +264,8 @@ window.onload = function() {
             }
 
             // refill queue
-            bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+            if(!bubbleQueue[1])
+                bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
 
             // snap bubble to grid
 
