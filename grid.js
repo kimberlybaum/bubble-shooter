@@ -9,6 +9,7 @@ window.onload = function() {
     var tileWidth = 0;
     var tileHeight = 0;
     var startingTotal = 100;
+    let speed = 5;
 
     //static bubble properties
     let bubbleRadius = 21;
@@ -28,7 +29,7 @@ window.onload = function() {
     // position/angle of cursor
     var cursor = 0;
 
-    //
+    // angle to shoot bubble at
     var shootAngle = 0;
 
     // space to draw the shooter at the bottom
@@ -150,8 +151,31 @@ window.onload = function() {
         }
     }
 
-    //get position of mouse when its moving
+    // pick random bubble color (returns an index)
+    function getRandColor() {
+        return Math.floor(Math.random() * Math.floor(bubbleColors.length));
+    }
 
+    // Convert radians to degrees
+    function radToDeg(angle) {
+        return angle * (180 / Math.PI);
+    }
+    
+    // Convert degrees to radians
+    function degToRad(angle) {
+        return angle * (Math.PI / 180);
+    }
+
+    // Get the mouse position
+    function getMousePos(canvas, e) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: Math.round((e.clientX - rect.left)/(rect.right - rect.left)*canvas.width),
+            y: Math.round((e.clientY - rect.top)/(rect.bottom - rect.top)*canvas.height)
+        };
+    }
+
+    //get position of mouse when its moving
     function onMouseMove(e) {
         // Get the mouse position
         var pos = getMousePos(canvas, e);
@@ -192,12 +216,6 @@ window.onload = function() {
         currentState = movingState;
     }
 
-
-    // pick random bubble color (returns an index)
-    function getRandColor() {
-        return Math.floor(Math.random() * Math.floor(bubbleColors.length));
-    }
-
     function init() {
         // populate matrix
         new Grid(canvas,17,17,8);
@@ -219,26 +237,35 @@ window.onload = function() {
             if (!bubbleToShoot) {
                 bubbleToShoot = bubbleQueue.shift();
             }
-
-            // draw
-            if (ctx) {
-                // clear everything
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-
-                // render bubble to shoot if there is one
-                renderShootBubble();
-
-                // draw shit
-                renderGrid();
-            }
             
             //get position of mouse while its moving
             canvas.addEventListener("mousemove", onMouseMove);
             //change state on mousedown
             canvas.addEventListener("mousedown", onMouseDown);
         }
-
         else if (currentState==movingState) {
+            // Move the bubble in the direction of the mouse
+            bubbleToShoot.x += speed * Math.cos(degToRad(shootAngle));
+            bubbleToShoot.y += speed * -1*Math.sin(degToRad(shootAngle));
+
+            // bouncing logic
+            if (bubbleToShoot.x+bubbleRadius>=canvas.width) {
+                shootAngle = 180 - shootAngle;
+            }
+            else if (bubbleToShoot.x-bubbleRadius<=0) {
+                shootAngle = 180 - shootAngle;
+            }
+            else if (bubbleToShoot.y-bubbleRadius<=0) {
+                currentState = collapseState;
+            }
+
+            // refill queue
+            bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+
+            // snap bubble to grid
+
+            // once bubble snaps to place, set bubbleToShoot to 0
+            // bubbleToShoot = null;
             
         }
         else if (currentState==collapseState) {
@@ -246,6 +273,18 @@ window.onload = function() {
         }
         else {
             currentState = restState;
+        }
+
+        // draw shit that's always drawn
+        if (ctx) {
+            // clear everything
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            // render bubble to shoot if there is one
+            renderShootBubble();
+
+            // draw shit
+            renderGrid();
         }
 
         // redraw
