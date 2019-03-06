@@ -259,6 +259,8 @@ window.onload = function() {
             bubbleToShoot.x += speed * Math.cos(degToRad(shootAngle));
             bubbleToShoot.y += speed * -1*Math.sin(degToRad(shootAngle));
             
+            // check for collision, if there is, bubble is snapped into place and gamestate
+            //is changed
             collisionDetection();
 
             // bouncing logic
@@ -272,17 +274,22 @@ window.onload = function() {
                 currentState = collapseState;
             }
 
-            // refill queue
-            if(!bubbleQueue[1])
-                bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
-
-            // snap bubble to grid
 
             // once bubble snaps to place, set bubbleToShoot to 0
             // bubbleToShoot = null;
             
         }
         else if (currentState==collapseState) {
+             // refill queue
+             if(!bubbleQueue[1])
+             bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+            
+            //TO DO
+            
+             //check neighbors
+            //check for clusters
+            //collapse cluster
+            //change to rest state
 
         }
         else {
