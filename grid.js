@@ -25,6 +25,11 @@ window.onload = function() {
     let restState = 0;
     let movingState = 1;
     let collapseState = 2;
+    let removeState = 3;
+
+    //for bubble collapse
+    var snapIndex = new Array(2);
+    var collapsePoints = [];
 
     // position/angle of cursor
     var cursor = 0;
@@ -282,15 +287,29 @@ window.onload = function() {
         else if (currentState==collapseState) {
              // refill queue
              if(!bubbleQueue[1])
-             bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
+                bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
             
             //TO DO
+            findClusters(snapIndex, grid[snapIndex[0]][snapIndex[1]].bubble.color);
             
-             //check neighbors
-            //check for clusters
-            //collapse cluster
-            //change to rest state
+            if(collapsePoints.length <= 2) {
+                currentState = restState; 
+                collapsePoints = new Array();
+            }
+            else 
+                currentState = removeState;
+            
 
+        }
+        else if (currentState == removeState) {
+            console.log("here boiii")
+            if(collapsePoints.length == 0){
+                currentState = restState;
+            }
+            else if(collapsePoints.length > 0){
+                removeIndex = collapsePoints.shift();
+                collapseBubble(removeIndex);
+            }
         }
         else {
             currentState = restState;
@@ -313,6 +332,56 @@ window.onload = function() {
         window.requestAnimationFrame(gameState);
     }
 
+    function findClusters(index, color) {
+        //base case for recursive search
+        if(grid[index[0]][index[1]] == null){
+            return;
+        }
+        else if(grid[index[0]][index[1]].bubble != undefined){
+            var checkBub = grid[index[0]][index[1]].bubble;
+            var add = true;
+    
+            if(checkBub.color == color){
+                collapsePoints.forEach(val =>{
+                    if(val[0] == index[0] && val[1] == index[1]){
+                        add = false;
+                    }
+                });
+            if(add){
+                collapsePoints.push([index[0],index[1]]);
+                //top right
+                findClusters([index[0]-1, index[1]+1], color);
+                // //right
+                findClusters([index[0], index[1]+2, color]);
+                //bottom left
+                findClusters([index[0]+1, index[1]+1], color);
+                //bottom right
+                findClusters([index[0]+1, index[1]-1], color);
+                //check top left
+                findClusters([index[0]-1, index[1]-1], color);
+                // //left 
+                findClusters([index[0], index[1]-2], color);
+            }
+        
+        }
+
+            return;
+    }
+}
+
+    function collapseBubble(index){
+        if(grid[index[0]][index[1]]){
+            console.log(grid[index[0]][index[1]]);
+            grid[index[0]][index[1]].bubble = null;
+            grid[index[0]][index[1]].isEmpty = true;
+            grid[index[0]][index[1]].isSettable = false;
+            console.log(grid[index[0]][index[1]]);
+        }
+        else{
+            return;
+        }
+    }
+
     function collisionDetection() {
         //if distance between point center and ball center is <= radius*2, return index for snap
         var collisionDistance = (bubbleRadius*2)**2;
@@ -320,7 +389,8 @@ window.onload = function() {
         settablePoints.forEach(p => {
             var currentDistance = (grid[p[0]][p[1]].x - bubbleToShoot.x)**2 + (grid[p[0]][p[1]].y-bubbleToShoot.y)**2;
             if(currentDistance <= collisionDistance){
-                var snapIndex= [p[0], p[1]];
+                snapIndex[0] = p[0];
+                snapIndex[1] = p[1];
                 snapBubble(snapIndex);
             }
         });
@@ -358,7 +428,7 @@ window.onload = function() {
                         grid[row+1][col-1].isSettable = (grid[row+1][col-1].isEmpty)? true : false; //below and to the left
                     if(col > 2)
                         grid[row][col-2].isSettable = (grid[row][col-2].isEmpty)? true : false; //to the left
-                 
+
                     grid[row+1][col+1].isSettable = (grid[row+1][col+1].isEmpty)? true : false; //below and to the right
                     
                     if(col!= grid[1].length-2)
