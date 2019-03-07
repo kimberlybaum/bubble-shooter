@@ -279,7 +279,6 @@ window.onload = function() {
                 currentState = collapseState;
             }
 
-
             // once bubble snaps to place, set bubbleToShoot to 0
             // bubbleToShoot = null;
             
@@ -289,28 +288,30 @@ window.onload = function() {
              if(!bubbleQueue[1])
                 bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
             
-            //TO DO
+            //find the cluster of bubbles of the same color as the bub we just shot
             findClusters(snapIndex, grid[snapIndex[0]][snapIndex[1]].bubble.color);
             
-            if(collapsePoints.length <= 2) {
+            //if there are less than 3 bubs in array, go back to rest state and clear the array containing the cluster points
+            if(collapsePoints.length < 3) {
                 currentState = restState; 
                 collapsePoints = new Array();
             }
+            //else, move to the state where we remove bubbles one by one
             else 
                 currentState = removeState;
-            
-
         }
+        //remove state pops each index off of the array, and calls remove on it which sets the bubble = null
         else if (currentState == removeState) {
-            console.log("here boiii")
             if(collapsePoints.length == 0){
                 currentState = restState;
             }
             else if(collapsePoints.length > 0){
                 removeIndex = collapsePoints.shift();
+                //collapse bubbles one by one
                 collapseBubble(removeIndex);
             }
         }
+
         else {
             currentState = restState;
         }
@@ -325,49 +326,46 @@ window.onload = function() {
 
             // draw shit
             renderGrid();
-            
         }
 
         // redraw
         window.requestAnimationFrame(gameState);
     }
 
+    //find surrounding bubbles which are of the same color and recursively search on them
     function findClusters(index, color) {
-        //base case for recursive search
+        //base case for recursive search, points not on grid
         if(grid[index[0]][index[1]] == null){
             return;
         }
+        //points containing no bubble
         else if(grid[index[0]][index[1]].bubble != undefined){
             var checkBub = grid[index[0]][index[1]].bubble;
             var add = true;
-    
+            //if bubble is the same color as our shot bubble
             if(checkBub.color == color){
+                //check if we already added it to the array (every bubble in a cluster will be checked twice, cant fig out how to avoid this)
+               //if bubble index has already been added to our global array of cluster bubbles, dont add it
                 collapsePoints.forEach(val =>{
                     if(val[0] == index[0] && val[1] == index[1]){
                         add = false;
                     }
                 });
-            if(add){
-                collapsePoints.push([index[0],index[1]]);
-                //top right
-                findClusters([index[0]-1, index[1]+1], color);
-                // //right
-                findClusters([index[0], index[1]+2, color]);
-                //bottom left
-                findClusters([index[0]+1, index[1]+1], color);
-                //bottom right
-                findClusters([index[0]+1, index[1]-1], color);
-                //check top left
-                findClusters([index[0]-1, index[1]-1], color);
-                // //left 
-                findClusters([index[0], index[1]-2], color);
+                //else, add the bubble to the cluster array, and then search surrounding size bubbles
+                if(add){
+                    collapsePoints.push([index[0],index[1]]);
+                    //we search clockwise
+                    findClusters([index[0]-1, index[1]+1], color); //top right
+                    findClusters([index[0], index[1]+2, color]); //right
+                    findClusters([index[0]+1, index[1]+1], color); //bottom right
+                    findClusters([index[0]+1, index[1]-1], color); //bottom left
+                    findClusters([index[0], index[1]-2], color); //left
+                    findClusters([index[0]-1, index[1]-1], color); //top left
+                }
             }
-        
-        }
-
             return;
+        }
     }
-}
 
     function collapseBubble(index){
         if(grid[index[0]][index[1]]){
