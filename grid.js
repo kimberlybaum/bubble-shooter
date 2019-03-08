@@ -8,7 +8,7 @@ window.onload = function() {
     var grid = 0;
     var tileWidth = 0;
     var tileHeight = 0;
-    let speed = 6;
+    let speed = 8;
 
     //static bubble properties
     let bubbleRadius = 21;
@@ -400,7 +400,8 @@ window.onload = function() {
 
     function collisionDetection() {
         //if distance between point center and ball center is <= radius*2, return index for snap
-        var collisionDistance = (bubbleRadius*2)**2;
+      //lets try a smaller collision distance of the bubble radius
+      collisionDistance = (bubbleRadius*1.07)**2;
         if(settablePoints) {
         settablePoints.forEach(p => {
             var currentDistance = (grid[p[0]][p[1]].x - bubbleToShoot.x)**2 + (grid[p[0]][p[1]].y-bubbleToShoot.y)**2;
@@ -449,23 +450,44 @@ window.onload = function() {
         for(var row = 1; row < grid.length-1; row++){
             for(var col = 1; col< grid[row].length-1; col++){
                 if (grid[row][col].bubble != null) {
-                    if(col!= 1){
+                    //bottom left
+                    if(col!= 1){ 
                         if(grid[row+1][col-1].bubble == null){
                             grid[row+1][col-1].isSettable = true;
-                            var leftSet = [row+1, col-1];
-                            settablePoints.push(leftSet);
+                            var bLeftSet = [row+1, col-1];
+                            settablePoints.push(bLeftSet);
                         }
                         else{
                             grid[row+1][col-1].isSettable = false;
                         }
                     }
+                    //left
+                    if(col > 2){ 
+                        if(grid[row][col-2].bubble == null){
+                            grid[row][col-2].isSettable = true;
+                            var leftSet = [row, col-2];
+                            settablePoints.push(leftSet);
+                        }
+                        else{
+                            grid[row][col-1].isSettable = false;
+                        }
+                    }
+                    //bottom right
                     if(grid[row+1][col+1].bubble == null){
                         grid[row+1][col+1].isSettable = true //below and to the right
-                        var rightSet = [row+1, col+1];
-                        settablePoints.push(rightSet);
+                        var bRightSet = [row+1, col+1];
+                        settablePoints.push(bRightSet);
+                    }
+                    //right
+                    if(col < grid[row].length - 3){ 
+                        if(grid[row][col+2].bubble == null){
+                            grid[row][col+2].isSettable = true //below and to the right
+                            var rightSet = [row, col+2];
+                            settablePoints.push(rightSet);
+                        }
                     }
                     else {
-                        grid[row+1][col+1].isSettable = false;
+                        grid[row][col+1].isSettable = false;
                     }
 
                 }
