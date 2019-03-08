@@ -12,8 +12,8 @@ window.onload = function() {
 
     //static bubble properties
     let bubbleRadius = 21;
-    // let bubbleColors = ["#ff0000","#c900ff", "#ffb400", "#11cbf4"];
-    let bubbleColors = ["#ca8aff","#ff2c84", "#ffd900", "#ff3c97", "#00e1ff"];
+    //"#ff7300" maybe include for fifth color
+    let bubbleColors = ["#ca8aff", "#ffd900", "#ff3c97", "#00e1ff"];
     // shooter variables
     var bubbleToShoot;
     var bubbleQueue = new Array(2);
