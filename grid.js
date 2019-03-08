@@ -12,8 +12,8 @@ window.onload = function() {
 
     //static bubble properties
     let bubbleRadius = 21;
-    let bubbleColors = ["pink","blue", "purple", "hotpink"];
-
+    // let bubbleColors = ["#ff0000","#c900ff", "#ffb400", "#11cbf4"];
+    let bubbleColors = ["#ca8aff","#ff2c84", "#ffd900", "#ff3c97", "#00e1ff"];
     // shooter variables
     var bubbleToShoot;
     var bubbleQueue = new Array(2);
@@ -41,6 +41,8 @@ window.onload = function() {
 
     //choose how many rows we want bubbles to be;
     let bubbleRows = 8;
+
+    //also need an array of top row indexes that are empty because they are always settable
 
     class Bubble {
         constructor(x, y, c) {
@@ -455,9 +457,6 @@ window.onload = function() {
 
     //makes only the points to the bottom left and right of a bubble settable for the moving bub
     function findSettable(){
-        //grid indexes
-        // var row = 1;
-        // var col = 1;
 
         for(var row = 1; row < grid.length-1; row++){
             for(var col = 1; col< grid[row].length-1; col++){

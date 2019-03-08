@@ -3,4 +3,11 @@
     height: 628;
 } */
 
-canvas { background: #d8e9ee; }
+canvas { 
+    background: hsl(240, 12%, 21%);
+    /* color: #00e1ff;
+    color: #ff2c84;
+    color: #ffd900;
+    color: #ca8aff;
+    color: #ff7300; */
+}
