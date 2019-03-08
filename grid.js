@@ -12,12 +12,16 @@ window.onload = function() {
 
     //static bubble properties
     let bubbleRadius = 21;
-    //"#ff7300" maybe include for fifth color
+    //"#ff7300" for fifth color
     let bubbleColors = ["#ca8aff", "#ffd900", "#ff3c97", "#00e1ff"];
+    //choose how many rows we want bubbles to be;
+    let bubbleRows = 8;
+
     // shooter variables
     var bubbleToShoot;
     var bubbleQueue = new Array(2);
     let shooterPos = [canvas.width/2, canvas.height-bubbleRadius*1.5];
+    var score;
 
     // states
     var currentState;
@@ -38,9 +42,6 @@ window.onload = function() {
 
     //gives you an array of all settable points at a given time
     var settablePoints = [];
-
-    //choose how many rows we want bubbles to be;
-    let bubbleRows = 8;
 
     //also need an array of top row indexes that are empty because they are always settable
 
@@ -131,9 +132,10 @@ window.onload = function() {
         // draw grid
         for (var i = 1; i<grid.length; i++) {
             for (var j = 1; j<grid[1].length; j++) {
+
+                    //draw grid points for testing purposes
                     var p = grid[i][j];
                     ctx.beginPath();
-                    
                     if (p.isSettable)
                         //uncomment to view settable points
                        // ctx.fillStyle = "black";
@@ -242,6 +244,9 @@ window.onload = function() {
         // init state
         currentState = restState;
 
+        //reset player score
+        score = 0;
+
         // init populate shooter queue
         bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
         bubbleQueue.push(new Bubble(shooterPos[0], shooterPos[1], bubbleColors[getRandColor()]));
@@ -341,12 +346,23 @@ window.onload = function() {
 
             // draw shit
             renderGrid();
+
+            //draw score
+            drawScore();
         }
 
         // redraw
         window.requestAnimationFrame(gameState);
     }
 
+    //draw the player score in bottom left corner
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("SCORE: "+ score, 8, canvas.height - 15);
+    }
+
+    //use in future for popping bubbles 1 by 1
     function sleep (time) {
         return new Promise((resolve) => setTimeout(resolve, time));
       }
@@ -401,6 +417,8 @@ window.onload = function() {
             grid[index[0]][index[1]].bubble = null;
             grid[index[0]][index[1]].isEmpty = true;
             grid[index[0]][index[1]].isSettable = false;
+            //ten points for popping a bubble bro
+            score += 10;
         }
         else{
             return;
