@@ -313,16 +313,16 @@ window.onload = function() {
                 currentState = removeState;
             } 
 
-            //if there are less than 3 bubs in array, go back to rest state and clear the array containing the cluster points
+            //if there are less than 3 bubs in array, go back to rest state
             else{
                 currentState = restState; 
+                // clear the array containing possible cluster points
                 collapsePoints = new Array();
             }
    
         }
-        //remove state pops each index off of the array, and calls remove on it which sets the bubble = null
         else if (currentState == removeState) {
-            
+             //remove state pops each index off of the array, and calls remove on it which sets the bubble = null
             if(collapsePoints.length == 0){
                 currentState = restState;
             }
