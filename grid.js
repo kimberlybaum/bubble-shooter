@@ -57,6 +57,8 @@ window.onload = function() {
             this.isSettable = settable;
             this.isEmpty = true;
             this.bubble = b;
+            //top row is special for isSettable points, as all are settable when empty
+            this.isTop = false;
         }
     }
 
@@ -102,6 +104,10 @@ window.onload = function() {
                     var p = new Point(tileWidth*j+5,tileHeight*i,set, b);
                     if(b != null){
                         p.isEmpty = false;
+                        if(i == 1){
+                            p.isTop = true;
+                            //putting this in here to prevent errors for now; but in long run will remove
+                        }
                     }
                     grid[i][j] = p;
                 }
@@ -127,7 +133,9 @@ window.onload = function() {
                     // console.log(p);
                     ctx.beginPath();
                     if (p.isSettable)
-                        ctx.fillStyle = "black";
+                        //uncomment to view settable points
+                       // ctx.fillStyle = "black";
+                       ctx.fillStyle = "white";
                     else
                         ctx.fillStyle = "white";
                     ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
@@ -436,6 +444,10 @@ window.onload = function() {
                 if(p.bubble == null ){
                     p.isSettable = false;
                     p.isEmpty = true;
+                }
+                //top is special :)
+                else if(p.isTop){
+                    p.isSettable = true;
                 }
             });
         });
