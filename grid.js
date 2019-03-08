@@ -318,7 +318,6 @@ window.onload = function() {
         else if (currentState == removeState) {
             
             if(collapsePoints.length == 0){
-                console.log(grid);
                 currentState = restState;
             }
             else if(collapsePoints.length > 0){
@@ -354,7 +353,6 @@ window.onload = function() {
     //find surrounding bubbles which are of the same color and recursively search on them
     function findClusters(index, color) {
         //base case for recursive search, points not on grid
-        console.log(index);
         if(typeof grid[index[0]][index[1]] == undefined){
             return;
         }
