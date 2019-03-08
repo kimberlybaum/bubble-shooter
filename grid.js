@@ -132,17 +132,18 @@ window.onload = function() {
         for (var i = 1; i<grid.length; i++) {
             for (var j = 1; j<grid[1].length; j++) {
                     var p = grid[i][j];
-                    // console.log(p);
                     ctx.beginPath();
+                    
                     if (p.isSettable)
                         //uncomment to view settable points
                        // ctx.fillStyle = "black";
                        ctx.fillStyle = "white";
                     else
                         ctx.fillStyle = "white";
+
                     ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
                     ctx.fill();
-                        // console.log("got here");
+
                     if(p.bubble != null){
                         drawBubble(p.bubble);
                     }
