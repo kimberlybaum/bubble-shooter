@@ -8,7 +8,6 @@ window.onload = function() {
     var grid = 0;
     var tileWidth = 0;
     var tileHeight = 0;
-    var startingTotal = 100;
     let speed = 6;
 
     //static bubble properties
@@ -41,7 +40,7 @@ window.onload = function() {
     var settablePoints = [];
 
     //choose how many rows we want bubbles to be;
-    let bubbleRows = 5;
+    let bubbleRows = 8;
 
     class Bubble {
         constructor(x, y, c) {
@@ -227,7 +226,7 @@ window.onload = function() {
 
     function init() {
         // populate matrix
-        new Grid(canvas,8);
+        new Grid(canvas, bubbleRows);
 
         // init state
         currentState = restState;
@@ -246,7 +245,9 @@ window.onload = function() {
             if (!bubbleToShoot) {
                 bubbleToShoot = bubbleQueue.shift();
             }
-              
+            
+            //remove past settable points to add current ones
+            cleanGrid();
             //find and render settable points
             findSettable();
             
@@ -290,19 +291,24 @@ window.onload = function() {
             
             //find the cluster of bubbles of the same color as the bub we just shot
             findClusters(snapIndex, grid[snapIndex[0]][snapIndex[1]].bubble.color);
-            
+                        
+            //else, move to the state where we remove bubbles one by one
+            if(collapsePoints.length >= 3) {
+                currentState = removeState;
+            } 
+
             //if there are less than 3 bubs in array, go back to rest state and clear the array containing the cluster points
-            if(collapsePoints.length < 3) {
+            else{
                 currentState = restState; 
                 collapsePoints = new Array();
             }
-            //else, move to the state where we remove bubbles one by one
-            else 
-                currentState = removeState;
+   
         }
         //remove state pops each index off of the array, and calls remove on it which sets the bubble = null
         else if (currentState == removeState) {
+            
             if(collapsePoints.length == 0){
+                console.log(grid);
                 currentState = restState;
             }
             else if(collapsePoints.length > 0){
@@ -311,7 +317,6 @@ window.onload = function() {
                 collapseBubble(removeIndex);
             }
         }
-
         else {
             currentState = restState;
         }
@@ -332,10 +337,15 @@ window.onload = function() {
         window.requestAnimationFrame(gameState);
     }
 
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+      }
+
     //find surrounding bubbles which are of the same color and recursively search on them
     function findClusters(index, color) {
         //base case for recursive search, points not on grid
-        if(grid[index[0]][index[1]] == null){
+        console.log(index);
+        if(typeof grid[index[0]][index[1]] == undefined){
             return;
         }
         //points containing no bubble
@@ -355,12 +365,22 @@ window.onload = function() {
                 if(add){
                     collapsePoints.push([index[0],index[1]]);
                     //we search clockwise
-                    findClusters([index[0]-1, index[1]+1], color); //top right
-                    findClusters([index[0], index[1]+2, color]); //right
-                    findClusters([index[0]+1, index[1]+1], color); //bottom right
-                    findClusters([index[0]+1, index[1]-1], color); //bottom left
-                    findClusters([index[0], index[1]-2], color); //left
-                    findClusters([index[0]-1, index[1]-1], color); //top left
+                    //prevent search out of range of grid
+                    gridHeight = grid.length - 2;
+                    gridWidth = grid[1].length - 2;
+
+                    if(index[0]!=1 && index[1] <= gridWidth)
+                        findClusters([index[0]-1, index[1]+1], color); //top right
+                    if(index[1] <= (gridWidth - 1))
+                        findClusters([index[0], index[1]+2], color); //right
+                    if(index[0] <= gridHeight && index[1]<= (gridWidth))
+                        findClusters([index[0]+1, index[1]+1], color); //bottom right
+                    if(index[0]<= (gridHeight) && index[1] != 1)
+                        findClusters([index[0]+1, index[1]-1], color); //bottom left
+                    if(index[1]>2)
+                        findClusters([index[0], index[1]-2], color); //left
+                    if(index[0]!=1 && index[1] != 1)
+                        findClusters([index[0]-1, index[1]-1], color); //top left
                 }
             }
             return;
@@ -369,11 +389,9 @@ window.onload = function() {
 
     function collapseBubble(index){
         if(grid[index[0]][index[1]]){
-            console.log(grid[index[0]][index[1]]);
             grid[index[0]][index[1]].bubble = null;
             grid[index[0]][index[1]].isEmpty = true;
             grid[index[0]][index[1]].isSettable = false;
-            console.log(grid[index[0]][index[1]]);
         }
         else{
             return;
@@ -386,7 +404,7 @@ window.onload = function() {
         if(settablePoints) {
         settablePoints.forEach(p => {
             var currentDistance = (grid[p[0]][p[1]].x - bubbleToShoot.x)**2 + (grid[p[0]][p[1]].y-bubbleToShoot.y)**2;
-            if(currentDistance <= collisionDistance){
+            if(currentDistance < collisionDistance){
                 snapIndex[0] = p[0];
                 snapIndex[1] = p[1];
                 snapBubble(snapIndex);
@@ -410,46 +428,86 @@ window.onload = function() {
         currentState = collapseState;
     }
 
+    function cleanGrid() {
+        settablePoints = [];
+        grid.forEach(row => {
+            row.forEach(p => {
+                if(p.bubble == null ){
+                    p.isSettable = false;
+                    p.isEmpty = true;
+                }
+            });
+        });
+    }
+
     //makes only the points to the bottom left and right of a bubble settable for the moving bub
     function findSettable(){
         //grid indexes
-        var row = 1;
-        var col = 1;
+        // var row = 1;
+        // var col = 1;
 
-        while(row < grid.length-1){ //one less row and col cause were checking whats below and to the right and left
-            col = 1;
-            while(col < grid[1].length-1){
-                //check if current point has a bubble
-                if (!grid[row][col].isEmpty) {
-                    //exclude first column because all those points are null
-                    if(col!= 1) //here we are finding the points on the grid bubbles can get snapped into...
-                        grid[row+1][col-1].isSettable = (grid[row+1][col-1].isEmpty)? true : false; //below and to the left
-                    if(col > 2)
-                        grid[row][col-2].isSettable = (grid[row][col-2].isEmpty)? true : false; //to the left
+        for(var row = 1; row < grid.length-1; row++){
+            for(var col = 1; col< grid[row].length-1; col++){
+                if (grid[row][col].bubble != null) {
+                    if(col!= 1){
+                        if(grid[row+1][col-1].bubble == null){
+                            grid[row+1][col-1].isSettable = true;
+                            var leftSet = [row+1, col-1];
+                            settablePoints.push(leftSet);
+                        }
+                        else{
+                            grid[row+1][col-1].isSettable = false;
+                        }
+                    }
+                    if(grid[row+1][col+1].bubble == null){
+                        grid[row+1][col+1].isSettable = true //below and to the right
+                        var rightSet = [row+1, col+1];
+                        settablePoints.push(rightSet);
+                    }
+                    else {
+                        grid[row+1][col+1].isSettable = false;
+                    }
 
-                    grid[row+1][col+1].isSettable = (grid[row+1][col+1].isEmpty)? true : false; //below and to the right
-                    
-                    if(col!= grid[1].length-2)
-                        grid[row][col+2].isSettable = (grid[row][col+2].isEmpty)? true : false; //to the right
                 }
-                else {
-                    if(col!= 1) 
-                        grid[row+1][col-1].isSettable = false;
-                    grid[row+1][col+1].isSettable = false;
-                }
-                col++
             }
-            row++
         }
+
+
+
+        // while(row < grid.length-1){ //one less row and col cause were checking whats below and to the right and left
+        //     col = 1;
+        //     while(col < grid[1].length-1){
+        //         //check if current point has a bubble
+        //         if (!grid[row][col].isEmpty) {
+        //             //exclude first column because all those points are null
+        //             if(col!= 1) //here we are finding the points on the grid bubbles can get snapped into...
+        //                 grid[row+1][col-1].isSettable = (grid[row+1][col-1].isEmpty)? true : false; //below and to the left
+        //             if(col > 2)
+        //                 grid[row][col-2].isSettable = (grid[row][col-2].isEmpty)? true : false; //to the left
+
+        //             grid[row+1][col+1].isSettable = (grid[row+1][col+1].isEmpty)? true : false; //below and to the right
+                    
+        //             if(col!= grid[1].length-2)
+        //                 grid[row][col+2].isSettable = (grid[row][col+2].isEmpty)? true : false; //to the right
+        //         }
+        //         else {
+        //             if(col!= 1) 
+        //                 grid[row+1][col-1].isSettable = false;
+        //             grid[row+1][col+1].isSettable = false;
+        //         }
+        //         col++
+        //     }
+        //     row++
+        // }
         //this is redundant, will put this into findSettable() in the future
-        for(var r=1; r<grid.length; r++){
-            for(var c=1; c<grid[r].length; c++){
-                if(grid[r][c].isSettable){
-                    var arrayIndex = [r,c];
-                    settablePoints.push(arrayIndex);
-                }
-            }
-     }
+    //     for(var r=1; r<grid.length; r++){
+    //         for(var c=1; c<grid[r].length; c++){
+    //             if(grid[r][c].isSettable){
+    //                 var arrayIndex = [r,c];
+    //                 settablePoints.push(arrayIndex);
+    //             }
+    //         }
+    //  }
     }
                        
     init();
