@@ -138,8 +138,8 @@ window.onload = function() {
                     ctx.beginPath();
                     if (p.isSettable)
                         //uncomment to view settable points
-                       // ctx.fillStyle = "black";
-                       ctx.fillStyle = "white";
+                    //    ctx.fillStyle = "red";
+                      ctx.fillStyle = "white";
                     else
                         ctx.fillStyle = "white";
 
@@ -376,18 +376,19 @@ window.onload = function() {
         //points containing no bubble
         else if(grid[index[0]][index[1]].bubble != undefined){
             var checkBub = grid[index[0]][index[1]].bubble;
-            var add = true;
             //if bubble is the same color as our shot bubble
             if(checkBub.color == color){
+                var alreadyAdded = false;
                 //check if we already added it to the array (every bubble in a cluster will be checked twice, cant fig out how to avoid this)
                //if bubble index has already been added to our global array of cluster bubbles, dont add it
                 collapsePoints.forEach(val =>{
                     if(val[0] == index[0] && val[1] == index[1]){
-                        add = false;
+                        alreadyAdded = true;
                     }
                 });
+
                 //else, add the bubble to the cluster array, and then search surrounding size bubbles
-                if(add){
+                if(!alreadyAdded){
                     collapsePoints.push([index[0],index[1]]);
                     //we search clockwise
                     //prevent search out of range of grid
