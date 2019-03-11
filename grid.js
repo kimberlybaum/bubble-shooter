@@ -315,9 +315,13 @@ window.onload = function() {
 
             //if there are less than 3 bubs in array, go back to rest state
             else{
-                currentState = restState; 
                 // clear the array containing possible cluster points
                 collapsePoints = new Array();
+                if(snapIndex[0] == (grid.length - 1)){
+                    gameOver();
+                    return;
+                }
+                currentState = restState; 
             }
    
         }
@@ -454,12 +458,7 @@ window.onload = function() {
         snapPosition.bubble = bubbleCopy;
         snapPosition.isSettable = false;
         snapPosition.isEmpty = false;
-        // put game over here because we still want the bubble to be in a position?
-        console.log(index[0]);
-        if(index[0] == (grid.length - 1)){
-            gameOver();
-            return;
-        }
+
         currentState = collapseState;
     }
 
