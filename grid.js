@@ -454,7 +454,19 @@ window.onload = function() {
         snapPosition.bubble = bubbleCopy;
         snapPosition.isSettable = false;
         snapPosition.isEmpty = false;
+        // put game over here because we still want the bubble to be in a position?
+        console.log(index[0]);
+        if(index[0] == (grid.length - 1)){
+            gameOver();
+            return;
+        }
         currentState = collapseState;
+    }
+
+    function gameOver(){
+        window.alert("GAME OVER");
+        document.location.reload();
+        window.cancelAnimationFrame(draw); // Needed for Chrome to end game 
     }
 
     function cleanGrid() {
