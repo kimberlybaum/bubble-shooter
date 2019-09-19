@@ -533,43 +533,6 @@ window.onload = function() {
                 }
             }
         }
-
-
-
-        // while(row < grid.length-1){ //one less row and col cause were checking whats below and to the right and left
-        //     col = 1;
-        //     while(col < grid[1].length-1){
-        //         //check if current point has a bubble
-        //         if (!grid[row][col].isEmpty) {
-        //             //exclude first column because all those points are null
-        //             if(col!= 1) //here we are finding the points on the grid bubbles can get snapped into...
-        //                 grid[row+1][col-1].isSettable = (grid[row+1][col-1].isEmpty)? true : false; //below and to the left
-        //             if(col > 2)
-        //                 grid[row][col-2].isSettable = (grid[row][col-2].isEmpty)? true : false; //to the left
-
-        //             grid[row+1][col+1].isSettable = (grid[row+1][col+1].isEmpty)? true : false; //below and to the right
-                    
-        //             if(col!= grid[1].length-2)
-        //                 grid[row][col+2].isSettable = (grid[row][col+2].isEmpty)? true : false; //to the right
-        //         }
-        //         else {
-        //             if(col!= 1) 
-        //                 grid[row+1][col-1].isSettable = false;
-        //             grid[row+1][col+1].isSettable = false;
-        //         }
-        //         col++
-        //     }
-        //     row++
-        // }
-        //this is redundant, will put this into findSettable() in the future
-    //     for(var r=1; r<grid.length; r++){
-    //         for(var c=1; c<grid[r].length; c++){
-    //             if(grid[r][c].isSettable){
-    //                 var arrayIndex = [r,c];
-    //                 settablePoints.push(arrayIndex);
-    //             }
-    //         }
-    //  }
     }
                        
     init();
